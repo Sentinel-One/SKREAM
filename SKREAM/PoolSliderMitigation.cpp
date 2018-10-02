@@ -76,6 +76,19 @@ Exit:
     return p;
 }
 
+VOID ExFreePoolWithTag_Hook(
+    _In_ PVOID P,
+    _In_ ULONG Tag
+)
+{
+    //
+    // Align back to 16-byte granularity.
+    //
+
+    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & 0xfffffffffffffff0);
+    ExFreePoolWithTag(P, Tag);
+}
+
 BOOLEAN
 NTAPI
 ImportFuncCallbackEx(
@@ -89,9 +102,10 @@ ImportFuncCallbackEx(
 
     BOOLEAN result = TRUE; // Instruct Detours to continue enumeration.
 
-    if (pvFunc && pszName && strcmp(pszName, "ExAllocatePoolWithTag") == 0) {
+    if (pvFunc && pszName &&
+        ((strcmp(pszName, "ExAllocatePoolWithTag") == 0) || (strcmp(pszName, "ExFreePoolWithTag") == 0))) {
         // Instruct Detours to stop enumeration.
-        result = FALSE;
+        //result = FALSE;
 
         PMDL pImportEntryMdl = nullptr;
         BOOLEAN LockedPages = FALSE;
@@ -135,7 +149,15 @@ ImportFuncCallbackEx(
                 __leave;
             }
 
-            *reinterpret_cast<ULONG_PTR *>(pWritableImportEntry) = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTag_Hook);
+            if (strcmp(pszName, "ExAllocatePoolWithTag") == 0) {
+                *reinterpret_cast<ULONG_PTR *>(pWritableImportEntry) = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTag_Hook);
+            }
+            else if (strcmp(pszName, "ExFreePoolWithTag") == 0) {
+                *reinterpret_cast<ULONG_PTR *>(pWritableImportEntry) = reinterpret_cast<ULONG_PTR>(ExFreePoolWithTag_Hook);
+            }
+            else {
+                NT_ASSERT(FALSE);
+            }
 
         }
         __finally {
