@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="PoolSliderMitigation.cpp" />
     <ClCompile Include="TypeOverwriteMitigation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -166,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="NativeStructs7.h" />
     <ClInclude Include="NativeStructs8.h" />
+    <ClInclude Include="PoolSliderMitigation.h" />
     <ClInclude Include="TypeOverwriteMitigation.h" />
     <ClInclude Include="VadUtils.h" />
   </ItemGroup>

@@ -1,5 +1,6 @@
 #include <ntifs.h>
 #include "TypeOverwriteMitigation.h"
+#include "PoolSliderMitigation.h"
 
 extern "C" {
     DRIVER_INITIALIZE DriverEntry;
@@ -39,9 +40,7 @@ LoadImageNotify(
     _In_ PIMAGE_INFO ImageInfo
 )
 {
-    UNREFERENCED_PARAMETER(FullImageName);
-    UNREFERENCED_PARAMETER(ProcessId);
-    UNREFERENCED_PARAMETER(ImageInfo);
+    PoolSliderLoadImageNotify(FullImageName, ProcessId, ImageInfo);
 }
 
 VOID
