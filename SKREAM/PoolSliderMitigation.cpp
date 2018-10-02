@@ -1,6 +1,20 @@
 #include "PoolSliderMitigation.h"
 #include <ntifs.h>
 #include "DetoursKernel.h"
+#include "NativeStructs81.h"
+#include "Random.h"
+#include <fltKernel.h>
+
+static
+ULONG
+GetPoolBlockSize(_In_ PVOID pBlock)
+{
+    static_assert(sizeof(win81::POOL_HEADER) == 16, "Bad pool header format");
+
+    auto pPoolHeader = reinterpret_cast<win81::PPOOL_HEADER>(
+        reinterpret_cast<ULONG_PTR>(pBlock) - sizeof(win81::POOL_HEADER));
+    return pPoolHeader->BlockSize * sizeof(win81::POOL_HEADER);
+}
 
 PVOID
 NTAPI
@@ -10,7 +24,56 @@ ExAllocatePoolWithTag_Hook(
     _In_ ULONG Tag
 )
 {
-    return ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
+    //
+    // Call original pool routine.
+    //
+
+    PVOID p = ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
+
+    if (!p) {
+
+        //
+        // There is nothing we can do to failed allocations.
+        //
+
+        goto Exit;
+    }
+
+    if (NumberOfBytes > 0xff0) {
+
+        //
+        // Allocations bigger than a page size are handled separately.
+        //
+
+        goto Exit;
+    }
+
+    //
+    // Retrieve the block size.
+    //
+    
+    auto BlockSizeInBytes = GetPoolBlockSize(p);
+
+    //
+    // Calculate the amount of padding we have.
+    //
+
+    auto Padding = BlockSizeInBytes - sizeof(win81::POOL_HEADER) - NumberOfBytes;
+    if ((Padding == 0) || (Padding > 16)) {
+        __debugbreak();
+        goto Exit;
+    }
+
+    //
+    // Add a random delta to the allocation.
+    //
+
+    auto delta = RNG::get().rand(1, Padding % 16);
+    p = Add2Ptr(p, delta);
+
+
+Exit:
+    return p;
 }
 
 BOOLEAN
