@@ -8,7 +8,15 @@ PoolSliderLoadImageNotify(
     _In_ PIMAGE_INFO ImageInfo
 )
 {
+    if (!ImageInfo->SystemModeImage) {
+
+        //
+        // We only care about kernel-mode drivers.
+        //
+
+        return;
+    }
+
     UNREFERENCED_PARAMETER(FullImageName);
     UNREFERENCED_PARAMETER(ProcessId);
-    UNREFERENCED_PARAMETER(ImageInfo);
 }
