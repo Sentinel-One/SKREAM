@@ -31,6 +31,19 @@ CreateProcessNotifyEx(
 
 }
 
+static
+VOID
+LoadImageNotify(
+    _In_ PUNICODE_STRING FullImageName,
+    _In_ HANDLE ProcessId,
+    _In_ PIMAGE_INFO ImageInfo
+)
+{
+    UNREFERENCED_PARAMETER(FullImageName);
+    UNREFERENCED_PARAMETER(ProcessId);
+    UNREFERENCED_PARAMETER(ImageInfo);
+}
+
 VOID
 Unload(
     _In_ PDRIVER_OBJECT DriverObject
@@ -46,6 +59,8 @@ DriverEntry(
     _In_ PUNICODE_STRING RegistryPath
 )
 {
+    NTSTATUS status = STATUS_SUCCESS;
+
     UNREFERENCED_PARAMETER(RegistryPath);
 
     if (MmIsDriverVerifying(DriverObject)) {
@@ -53,5 +68,19 @@ DriverEntry(
     }
 
     DriverObject->DriverUnload = Unload;
-    return PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyEx, FALSE);
+
+    status = PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyEx, FALSE);
+    if (!NT_SUCCESS(status)) {
+        DbgPrint("Failed to register process creation notify routine, status = %08x\n", status);
+        goto Exit;
+    }
+
+    status = PsSetLoadImageNotifyRoutine(LoadImageNotify);
+    if (!NT_SUCCESS(status)) {
+        DbgPrint("Failed to register load image notify routine, status = %08x\n", status);
+        goto Exit;
+    }
+
+Exit:
+    return status;
 }
