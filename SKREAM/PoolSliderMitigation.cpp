@@ -1,6 +1,8 @@
 #include "PoolSliderMitigation.h"
 #include <ntifs.h>
 
+
+
 VOID
 PoolSliderLoadImageNotify(
     _In_ PUNICODE_STRING FullImageName,

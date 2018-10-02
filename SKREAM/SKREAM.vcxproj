@@ -153,6 +153,7 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DetoursKernel.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="PoolSliderMitigation.cpp" />
     <ClCompile Include="TypeOverwriteMitigation.cpp">
@@ -165,6 +166,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DetoursKernel.h" />
     <ClInclude Include="NativeStructs7.h" />
     <ClInclude Include="NativeStructs8.h" />
     <ClInclude Include="PoolSliderMitigation.h" />

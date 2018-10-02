@@ -36,6 +36,9 @@
     <ClCompile Include="PoolSliderMitigation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DetoursKernel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeStructs7.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PoolSliderMitigation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DetoursKernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
