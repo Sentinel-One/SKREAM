@@ -59,5 +59,8 @@
     <ClInclude Include="DetoursKernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NativeStructs81.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

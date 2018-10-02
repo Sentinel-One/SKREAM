@@ -169,6 +169,7 @@
     <ClInclude Include="DetoursKernel.h" />
     <ClInclude Include="NativeStructs7.h" />
     <ClInclude Include="NativeStructs8.h" />
+    <ClInclude Include="NativeStructs81.h" />
     <ClInclude Include="PoolSliderMitigation.h" />
     <ClInclude Include="TypeOverwriteMitigation.h" />
     <ClInclude Include="VadUtils.h" />
