@@ -135,33 +135,65 @@ namespace win81 {
         union ___unnamed1957 u4; // Size=8 Offset=120
     } MMVAD, *PMMVAD;
 
-    typedef struct _POOL_HEADER // Size=16
+    //typedef struct _POOL_HEADER // Size=16
+    //{
+    //    union
+    //    {
+    //        struct
+    //        {
+    //            unsigned short PreviousSize : 8; // Size=2 Offset=0 BitOffset=0 BitCount=8
+    //            unsigned short PoolIndex : 8; // Size=2 Offset=0 BitOffset=8 BitCount=8
+    //        };
+    //        unsigned long Ulong1; // Size=4 Offset=0
+    //    };
+    //    struct
+    //    {
+    //        unsigned short BlockSize : 8; // Size=2 Offset=2 BitOffset=0 BitCount=8
+    //        unsigned short PoolType : 8; // Size=2 Offset=2 BitOffset=8 BitCount=8
+    //    };
+    //    unsigned long PoolTag; // Size=4 Offset=4
+    //    union
+    //    {
+    //        struct _EPROCESS * ProcessBilled; // Size=8 Offset=8
+    //        struct
+    //        {
+    //            unsigned short AllocatorBackTraceIndex; // Size=2 Offset=8
+    //            unsigned short PoolTagHash; // Size=2 Offset=10
+    //        };
+    //    };
+    //} POOL_HEADER, *PPOOL_HEADER;
+
+    typedef struct _POOL_HEADER
     {
         union
         {
             struct
             {
-                unsigned short PreviousSize : 8; // Size=2 Offset=0 BitOffset=0 BitCount=8
-                unsigned short PoolIndex : 8; // Size=2 Offset=0 BitOffset=8 BitCount=8
-            };
-            unsigned long Ulong1; // Size=4 Offset=0
-        };
-        struct
-        {
-            unsigned short BlockSize : 8; // Size=2 Offset=2 BitOffset=0 BitCount=8
-            unsigned short PoolType : 8; // Size=2 Offset=2 BitOffset=8 BitCount=8
-        };
-        unsigned long PoolTag; // Size=4 Offset=4
+                struct /* bitfield */
+                {
+                    /* 0x0000 */ unsigned short PreviousSize : 8; /* bit position: 0 */
+                    /* 0x0000 */ unsigned short PoolIndex : 8; /* bit position: 8 */
+                }; /* bitfield */
+                struct /* bitfield */
+                {
+                    /* 0x0002 */ unsigned short BlockSize : 8; /* bit position: 0 */
+                    /* 0x0002 */ unsigned short PoolType : 8; /* bit position: 8 */
+                }; /* bitfield */
+            }; /* size: 0x0004 */
+            /* 0x0000 */ unsigned long Ulong1;
+        }; /* size: 0x0004 */
+        /* 0x0004 */ unsigned long PoolTag;
         union
         {
-            struct _EPROCESS * ProcessBilled; // Size=8 Offset=8
+            /* 0x0008 */ struct _EPROCESS* ProcessBilled;
             struct
             {
-                unsigned short AllocatorBackTraceIndex; // Size=2 Offset=8
-                unsigned short PoolTagHash; // Size=2 Offset=10
-            };
-        };
-    } POOL_HEADER, *PPOOL_HEADER;
+                /* 0x0008 */ unsigned short AllocatorBackTraceIndex;
+                /* 0x000a */ unsigned short PoolTagHash;
+                /* 0x000c */ long __PADDING__[1];
+            }; /* size: 0x0008 */
+        }; /* size: 0x0008 */
+    } POOL_HEADER, *PPOOL_HEADER; /* size: 0x0010 */
 #pragma pack(pop)
 
     typedef struct _HANDLE_TABLE
