@@ -49,6 +49,8 @@ Unload(
 )
 {
     UNREFERENCED_PARAMETER(DriverObject);
+
+    PsRemoveLoadImageNotifyRoutine(LoadImageNotify);
     PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyEx, TRUE);
 }
 
