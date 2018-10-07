@@ -58,7 +58,6 @@ DetourEnumerateImportsEx(
             PVOID * pAddrs = (PVOID *)
                 RvaAdjust(pDosHeader, iidp->FirstThunk);
 
-            //PVOID hFile = DetourGetContainingModule(pAddrs[0]);
             PVOID hFile = NULL;
 
             if (pfImportFile != NULL) {
