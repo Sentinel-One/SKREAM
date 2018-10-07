@@ -14,10 +14,10 @@ static
 ULONG
 GetPoolBlockSizeInBytes(_In_ PVOID pBlock)
 {
-    static_assert(sizeof(POOL_HEADER) == 0x10, "bad pool header");
+    static_assert(sizeof(POOL_HEADER) == POOL_GRANULARITY, "bad pool header");
     auto pPoolHeader = reinterpret_cast<PPOOL_HEADER>(
         reinterpret_cast<ULONG_PTR>(pBlock) - sizeof(POOL_HEADER));
-    return pPoolHeader->BlockSize * sizeof(POOL_GRANULARITY) * sizeof(ULONG);
+    return pPoolHeader->BlockSize * POOL_GRANULARITY;
 }
 
 PVOID
@@ -31,7 +31,7 @@ ExAllocatePoolWithTag_Hook(
     //
     // If the size of the allocation matches the pool granularity, add 1 so we'll have padding to work with.
     //
-    if (NumberOfBytes % 0x10 == 0) {
+    if (NumberOfBytes % POOL_GRANULARITY == 0) {
         NumberOfBytes += 1;
     }
 
@@ -77,14 +77,14 @@ ExAllocatePoolWithTag_Hook(
         goto Exit;
     }
 
-    if (Padding > 15) {
+    if (Padding > POOL_GRANULARITY - 1) {
         __debugbreak();
         //
         // This could happen when the specified pool type is CacheAligned.
         // In this case we'll only use the first 15 bytes of padding, 
         // so it'll be easier to align the address when the allocation is freed.
         //
-        Padding = 15;
+        Padding = POOL_GRANULARITY - 1;
     }
 
     //
