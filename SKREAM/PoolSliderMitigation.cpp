@@ -1,19 +1,23 @@
 #include "PoolSliderMitigation.h"
 #include <ntifs.h>
 #include "DetoursKernel.h"
-#include "NativeStructs81.h"
 #include "Random.h"
 #include <fltKernel.h>
 
+#ifdef _AMD64_
+#define POOL_GRANULARITY 0x10
+#else // X86
+#define POOL_GRANULARITY 0x8
+#endif
+
 static
 ULONG
-GetPoolBlockSize(_In_ PVOID pBlock)
+GetPoolBlockSizeInBytes(_In_ PVOID pBlock)
 {
-    static_assert(sizeof(win81::POOL_HEADER) == 16, "Bad pool header format");
-
-    auto pPoolHeader = reinterpret_cast<win81::PPOOL_HEADER>(
-        reinterpret_cast<ULONG_PTR>(pBlock) - sizeof(win81::POOL_HEADER));
-    return pPoolHeader->BlockSize * sizeof(win81::POOL_HEADER);
+    static_assert(sizeof(POOL_HEADER) == 0x10, "bad pool header");
+    auto pPoolHeader = reinterpret_cast<PPOOL_HEADER>(
+        reinterpret_cast<ULONG_PTR>(pBlock) - sizeof(POOL_HEADER));
+    return pPoolHeader->BlockSize * sizeof(POOL_GRANULARITY) * sizeof(ULONG);
 }
 
 PVOID
@@ -25,9 +29,15 @@ ExAllocatePoolWithTag_Hook(
 )
 {
     //
+    // If the size of the allocation matches the pool granularity, add 1 so we'll have padding to work with.
+    //
+    if (NumberOfBytes % 0x10 == 0) {
+        NumberOfBytes += 1;
+    }
+
+    //
     // Call original pool routine.
     //
-
     PVOID p = ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
 
     if (!p) {
@@ -52,23 +62,36 @@ ExAllocatePoolWithTag_Hook(
     // Retrieve the block size.
     //
     
-    auto BlockSizeInBytes = GetPoolBlockSize(p);
+    auto BlockSizeInBytes = GetPoolBlockSizeInBytes(p);
 
     //
     // Calculate the amount of padding we have.
     //
 
-    auto Padding = BlockSizeInBytes - sizeof(win81::POOL_HEADER) - NumberOfBytes;
-    if ((Padding == 0) || (Padding > 16)) {
+    ULONG Padding = BlockSizeInBytes - sizeof(POOL_HEADER) - (ULONG)NumberOfBytes;
+    if (Padding == 0) {
+        //
+        // This shouldn't happen since we add 1 to allocations that align with the pool granularity.
+        //
         __debugbreak();
         goto Exit;
+    }
+
+    if (Padding > 15) {
+        __debugbreak();
+        //
+        // This could happen when the specified pool type is CacheAligned.
+        // In this case we'll only use the first 15 bytes of padding, 
+        // so it'll be easier to align the address when the allocation is freed.
+        //
+        Padding = 15;
     }
 
     //
     // Add a random delta to the allocation.
     //
 
-    auto delta = RNG::get().rand(1, Padding % 16);
+    auto delta = RNG::get().rand(1, Padding);
     p = Add2Ptr(p, delta);
 
 
@@ -82,10 +105,10 @@ VOID ExFreePoolWithTag_Hook(
 )
 {
     //
-    // Align back to 16-byte granularity.
+    // Align back to normal pool granularity.
     //
 
-    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & 0xfffffffffffffff0);
+    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & (0xfffffffffffffff0 | POOL_GRANULARITY));
     ExFreePoolWithTag(P, Tag);
 }
 
@@ -106,6 +129,18 @@ ImportFuncCallbackEx(
         ((strcmp(pszName, "ExAllocatePoolWithTag") == 0) || (strcmp(pszName, "ExFreePoolWithTag") == 0))) {
         // Instruct Detours to stop enumeration.
         //result = FALSE;
+
+        ULONG_PTR hookFunc = NULL;
+
+        if (strcmp(pszName, "ExAllocatePoolWithTag") == 0) {
+            hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTag_Hook);
+        }
+        else if (strcmp(pszName, "ExFreePoolWithTag") == 0) {
+            hookFunc = reinterpret_cast<ULONG_PTR>(ExFreePoolWithTag_Hook);
+        }
+        else {
+            NT_ASSERT(FALSE);
+        }
 
         PMDL pImportEntryMdl = nullptr;
         BOOLEAN LockedPages = FALSE;
@@ -149,15 +184,7 @@ ImportFuncCallbackEx(
                 __leave;
             }
 
-            if (strcmp(pszName, "ExAllocatePoolWithTag") == 0) {
-                *reinterpret_cast<ULONG_PTR *>(pWritableImportEntry) = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTag_Hook);
-            }
-            else if (strcmp(pszName, "ExFreePoolWithTag") == 0) {
-                *reinterpret_cast<ULONG_PTR *>(pWritableImportEntry) = reinterpret_cast<ULONG_PTR>(ExFreePoolWithTag_Hook);
-            }
-            else {
-                NT_ASSERT(FALSE);
-            }
+            *reinterpret_cast<ULONG_PTR *>(pWritableImportEntry) = hookFunc;
 
         }
         __finally {
