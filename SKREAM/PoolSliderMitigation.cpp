@@ -112,6 +112,33 @@ VOID ExFreePoolWithTag_Hook(
     ExFreePoolWithTag(P, Tag);
 }
 
+PVOID
+NTAPI
+ExAllocatePool_Hook(
+    _In_ POOL_TYPE PoolType,
+    _In_ SIZE_T NumberOfBytes
+)
+{
+    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 0);
+}
+
+VOID ExFreePool_Hook(
+    _In_ PVOID P
+)
+{
+    ExFreePoolWithTag_Hook(P, 0);
+}
+
+VOID RtlFreeAnsiString_Hook(
+    _In_ PANSI_STRING AnsiString
+)
+{
+    auto P = reinterpret_cast<PVOID>(AnsiString->Buffer);
+    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & (0xfffffffffffffff0 | POOL_GRANULARITY));
+    AnsiString->Buffer = reinterpret_cast<PCHAR>(P);
+    RtlFreeAnsiString(AnsiString);
+}
+
 BOOLEAN
 NTAPI
 ImportFuncCallbackEx(
@@ -126,7 +153,12 @@ ImportFuncCallbackEx(
     BOOLEAN result = TRUE; // Instruct Detours to continue enumeration.
 
     if (pvFunc && pszName &&
-        ((strcmp(pszName, "ExAllocatePoolWithTag") == 0) || (strcmp(pszName, "ExFreePoolWithTag") == 0))) {
+        ((strcmp(pszName, "ExAllocatePoolWithTag") == 0) || 
+        (strcmp(pszName, "ExFreePoolWithTag") == 0) || 
+        (strcmp(pszName, "ExAllocatePool") == 0) || 
+        (strcmp(pszName, "ExFreePool") == 0) ||
+        (strcmp(pszName, "RtlFreeAnsiString") == 0) ||
+        (strcmp(pszName, "RtlFreeUnicodeString") == 0))) {
         // Instruct Detours to stop enumeration.
         //result = FALSE;
 
@@ -137,6 +169,15 @@ ImportFuncCallbackEx(
         }
         else if (strcmp(pszName, "ExFreePoolWithTag") == 0) {
             hookFunc = reinterpret_cast<ULONG_PTR>(ExFreePoolWithTag_Hook);
+        }
+        else if (strcmp(pszName, "ExAllocatePool") == 0) {
+            hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePool_Hook);
+        }
+        else if (strcmp(pszName, "ExFreePool") == 0) {
+            hookFunc = reinterpret_cast<ULONG_PTR>(ExFreePool_Hook);
+        }
+        else if (strcmp(pszName, "RtlFreeAnsiString") == 0 || strcmp(pszName, "RtlFreeUnicodeString") == 0) {
+            hookFunc = reinterpret_cast<ULONG_PTR>(RtlFreeAnsiString_Hook);
         }
         else {
             NT_ASSERT(FALSE);
