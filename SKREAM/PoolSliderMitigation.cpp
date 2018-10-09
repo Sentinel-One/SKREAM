@@ -150,17 +150,7 @@ ImportFuncCallbackEx(
     UNREFERENCED_PARAMETER(pContext);
     UNREFERENCED_PARAMETER(nOrdinal);
 
-    BOOLEAN result = TRUE; // Instruct Detours to continue enumeration.
-
-    if (pvFunc && pszName &&
-        ((strcmp(pszName, "ExAllocatePoolWithTag") == 0) || 
-        (strcmp(pszName, "ExFreePoolWithTag") == 0) || 
-        (strcmp(pszName, "ExAllocatePool") == 0) || 
-        (strcmp(pszName, "ExFreePool") == 0) ||
-        (strcmp(pszName, "RtlFreeAnsiString") == 0) ||
-        (strcmp(pszName, "RtlFreeUnicodeString") == 0))) {
-        // Instruct Detours to stop enumeration.
-        //result = FALSE;
+    if (pvFunc && pszName) {
 
         ULONG_PTR hookFunc = NULL;
 
@@ -180,7 +170,7 @@ ImportFuncCallbackEx(
             hookFunc = reinterpret_cast<ULONG_PTR>(RtlFreeAnsiString_Hook);
         }
         else {
-            NT_ASSERT(FALSE);
+            goto Exit;
         }
 
         PMDL pImportEntryMdl = nullptr;
@@ -239,7 +229,8 @@ ImportFuncCallbackEx(
         }
     }
 
-    return result;
+Exit:
+    return TRUE;
 }
 
 VOID
