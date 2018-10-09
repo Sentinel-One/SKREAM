@@ -83,5 +83,9 @@ DriverEntry(
     }
 
 Exit:
+    if (!NT_SUCCESS(status)) {
+        PsRemoveLoadImageNotifyRoutine(LoadImageNotify);
+        PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyEx, TRUE);
+    }
     return status;
 }
