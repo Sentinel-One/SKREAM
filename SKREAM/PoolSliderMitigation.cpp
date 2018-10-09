@@ -119,6 +119,10 @@ ExAllocatePool_Hook(
     _In_ SIZE_T NumberOfBytes
 )
 {
+    //
+    // ExAllocatePool is a mere wrapper for ExAllocatePoolWithTag.
+    //
+
     return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 0);
 }
 
@@ -126,6 +130,10 @@ VOID ExFreePool_Hook(
     _In_ PVOID P
 )
 {
+    //
+    // ExFreePool is a mere wrapper for ExFreePoolWithTag.
+    //
+
     ExFreePoolWithTag_Hook(P, 0);
 }
 
