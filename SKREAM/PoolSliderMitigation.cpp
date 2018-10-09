@@ -141,6 +141,16 @@ VOID RtlFreeAnsiString_Hook(
     _In_ PANSI_STRING AnsiString
 )
 {
+    //
+    // The documentation for RtlFreeAnsiString (see https://docs.microsoft.com/en-us/windows/desktop/api/winternl/nf-winternl-rtlfreeansistring)
+    // clearly states that the purpose of this function is to "Free the string buffer allocated by RtlUnicodeStringToAnsiString."
+    //
+    // Unfortunately, some misbehaving drivers use this DDI to free a string buffer which was allocated directly by a
+    // previous call to ExAllocatePool(WithTag). To overcome this discrepancy we chose to hook RtlFreeAnsiString and
+    // align the string buffer ourselves if needed. Failure to do so will result in ExFreePool(WithTag) being called with
+    // an unaligned pointer, thus leading to a inevitable BSOD.
+    //
+
     auto P = reinterpret_cast<PVOID>(AnsiString->Buffer);
     P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & (0xfffffffffffffff0 | POOL_GRANULARITY));
     AnsiString->Buffer = reinterpret_cast<PCHAR>(P);
