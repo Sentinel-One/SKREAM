@@ -3,6 +3,7 @@
 #include "Random.h"
 #include <ntifs.h>
 #include <fltKernel.h>
+#include "Config.h"
 
 #ifdef _AMD64_
 #define POOL_GRANULARITY 0x10
@@ -18,17 +19,18 @@ ExAllocatePoolWithTagSafe_Hook(
     _In_ ULONG Tag
 )
 {
-    if (NumberOfBytes <= 0xf90) {
+    //
+    // Currently we don't do anything to allocations bigger than a page size.
+    //
 
-        //
-        // Currently we don't do anything to allocations bigger than a page size.
-        //
+    if (NumberOfBytes <= 0xf90) {
 
         //
         // Add a random number of chunks to the pool allocation without changing its base address or breaking its alignment.
         //
-        auto rand = RNG::get().rand(1, 5);
-        NumberOfBytes += (rand * POOL_GRANULARITY);
+
+        auto PoolChunksToAdd = RNG::get().rand(MIN_POOL_CHUNKS_TO_ADD, MAX_POOL_CHUNKS_TO_ADD);
+        NumberOfBytes += (PoolChunksToAdd * POOL_GRANULARITY);
     }
 
     return ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
