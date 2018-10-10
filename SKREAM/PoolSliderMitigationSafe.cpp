@@ -59,7 +59,6 @@ ImportFuncCallbackEx(
     _In_opt_ PVOID *pvFunc)
 {
     UNREFERENCED_PARAMETER(nOrdinal);
-    UNREFERENCED_PARAMETER(pContext);
 
     if (pvFunc && pszName) {
 
@@ -67,13 +66,18 @@ ImportFuncCallbackEx(
         // Check if we encountered a function we wish to hook.
         //
 
-        ULONG_PTR hookFunc = NULL;
+        ULONG_PTR hookFunc = 0;
 
         if (strcmp(pszName, "ExAllocatePoolWithTag") == 0) {
             hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTagSafe_Hook);
         }
         else if (strcmp(pszName, "ExAllocatePool") == 0) {
             hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePoolSafe_Hook);
+        }
+
+        if (hookFunc) {
+            auto pDriverName = reinterpret_cast<PUNICODE_STRING>(pContext);
+            DbgPrint("Hooking function %s in driver %wZ\n", pszName, pDriverName);
         }
         else {
             goto Exit;
@@ -161,5 +165,6 @@ PoolSliderLoadImageNotifySafeMitigation(
     //
     // Hook ExAllocatePool and ExAllocatePoolWithTag
     //
+
     DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx);
 }
