@@ -14,6 +14,8 @@ typedef BOOLEAN (NTAPI *PF_DETOUR_IMPORT_FUNC_CALLBACK_EX)(
     _In_opt_ LPCSTR pszFunc,
     _In_opt_ PVOID* ppvFunc);
 
+typedef BOOLEAN(NTAPI *PF_DETOUR_IMPORT_FUNC_CALLBACK_EX2)(_In_opt_ PVOID* ppvFunc);
+
 NTSTATUS
 NTAPI
 DetourEnumerateImportsEx(
@@ -21,3 +23,9 @@ DetourEnumerateImportsEx(
     _In_opt_ PVOID pContext,
     _In_opt_ PF_DETOUR_IMPORT_FILE_CALLBACK pfImportFile,
     _In_opt_ PF_DETOUR_IMPORT_FUNC_CALLBACK_EX pfImportFunc);
+
+NTSTATUS
+NTAPI
+DetourEnumerateIat(
+    _In_opt_ PVOID hModule,
+    _In_opt_ PF_DETOUR_IMPORT_FUNC_CALLBACK_EX2 pfImportFunc);

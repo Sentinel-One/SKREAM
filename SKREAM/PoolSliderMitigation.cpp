@@ -1,7 +1,7 @@
 #include "PoolSliderMitigation.h"
-#include <ntifs.h>
 #include "DetoursKernel.h"
 #include "Random.h"
+#include <ntifs.h>
 #include <fltKernel.h>
 
 #ifdef _AMD64_
@@ -28,6 +28,27 @@ ExAllocatePoolWithTag_Hook(
     _In_ ULONG Tag
 )
 {
+    //
+    // Some drivers (like Blbdrive.sys, dxgkrnl.sys and Serenum) allocate pool memory which will be later freed by NTOS.
+    //
+    if (Tag == 'pblB' || Tag == 'trpD' || Tag == 'mneS' ) {
+        //__debugbreak();
+        return ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
+    }
+
+    // nxusbh.sys (NoMachine driver) allocates pool memory that NTOS later frees.
+    if (Tag == 'CVUH' || Tag == 'evuh' || Tag == '.HUB' || Tag == 'HUB' || Tag == 'CBDE') {
+        //__debugbreak();
+        return ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
+    }
+
+    //
+    // nxusbf allocates memory for an NPAGED_LOOKASIDE_LIST structure, which has to be aligned when sent to ExInitializeNPagedLookasideList.
+    //
+    if (Tag == 'LIST') {
+        return ExAllocatePoolWithTag(PoolType, NumberOfBytes, Tag);
+    }
+
     //
     // If the size of the allocation matches the pool granularity, add 1 so we'll have padding to work with.
     //
@@ -122,8 +143,7 @@ ExAllocatePool_Hook(
     //
     // ExAllocatePool is a mere wrapper for ExAllocatePoolWithTag.
     //
-
-    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 0);
+    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 'enoN');
 }
 
 VOID ExFreePool_Hook(
@@ -157,46 +177,34 @@ VOID RtlFreeAnsiString_Hook(
     RtlFreeAnsiString(AnsiString);
 }
 
-BOOLEAN
-NTAPI
-ImportFuncCallbackEx(
-    _In_opt_ PVOID pContext,
-    _In_     ULONG nOrdinal,
-    _In_opt_ PCSTR pszName,
-    _In_opt_ PVOID *pvFunc)
+BOOLEAN NTAPI ImportFuncCallbackEx3(_In_opt_ PVOID *pvFunc)
 {
-    UNREFERENCED_PARAMETER(nOrdinal);
-
-    if (pvFunc && pszName) {
-
-        //
-        // Check if we encountered a function we wish to hook.
-        //
-
-        ULONG_PTR hookFunc = NULL;
-
-        if (strcmp(pszName, "ExAllocatePoolWithTag") == 0) {
+    //
+    // This function gets called from IoCreateDevice_Hook.
+    // At this point the IMAGE_DIRECTORY_ENTRY_IMPORT is already unmapped, so we iterate over IMAGE_DIRECTORY_ENTRY_IAT instead.
+    // This means we receive function pointers instead of names, so we have to compare them with the addresses of the functions we want to hook.
+    //
+    ULONG_PTR hookFunc = NULL;
+    if ((*pvFunc == (PVOID)ExAllocatePoolWithTag) || 
+        (*pvFunc == (PVOID)ExFreePoolWithTag) || 
+        (*pvFunc == (PVOID)ExAllocatePool) || 
+        (*pvFunc == (PVOID)ExFreePool) || 
+        (*pvFunc == (PVOID)RtlFreeAnsiString) ||
+        (*pvFunc == (PVOID)RtlFreeUnicodeString)) {
+        if (*pvFunc == (PVOID)ExAllocatePoolWithTag) {
             hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTag_Hook);
         }
-        else if (strcmp(pszName, "ExFreePoolWithTag") == 0) {
+        if (*pvFunc == (PVOID)ExFreePoolWithTag) {
             hookFunc = reinterpret_cast<ULONG_PTR>(ExFreePoolWithTag_Hook);
         }
-        else if (strcmp(pszName, "ExAllocatePool") == 0) {
+        if (*pvFunc == (PVOID)ExAllocatePool) {
             hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePool_Hook);
         }
-        else if (strcmp(pszName, "ExFreePool") == 0) {
+        if (*pvFunc == (PVOID)ExFreePool) {
             hookFunc = reinterpret_cast<ULONG_PTR>(ExFreePool_Hook);
         }
-        else if (strcmp(pszName, "RtlFreeAnsiString") == 0 || strcmp(pszName, "RtlFreeUnicodeString") == 0) {
+        if (*pvFunc == (PVOID)RtlFreeAnsiString || *pvFunc == (PVOID)RtlFreeUnicodeString) {
             hookFunc = reinterpret_cast<ULONG_PTR>(RtlFreeAnsiString_Hook);
-        }
-
-        if (hookFunc) {
-            auto pDriverName = reinterpret_cast<PUNICODE_STRING>(pContext);
-            DbgPrint("Hooking function %s in driver %wZ\n", pszName, pDriverName);
-        }
-        else {
-            goto Exit;
         }
 
         PMDL pImportEntryMdl = nullptr;
@@ -207,7 +215,7 @@ ImportFuncCallbackEx(
             //
             // Patch the IAT entry.
             //
-            
+
             pImportEntryMdl = IoAllocateMdl(pvFunc, sizeof(ULONG_PTR), FALSE, FALSE, nullptr);
             if (!pImportEntryMdl) {
                 DbgPrint("Could not allocate an MDL for import patch, insufficient resources.");
@@ -255,12 +263,115 @@ ImportFuncCallbackEx(
         }
     }
 
-Exit:
     return TRUE;
 }
 
+NTSTATUS NTAPI IoCreateDevice_Hook(
+    PDRIVER_OBJECT  DriverObject,
+    ULONG           DeviceExtensionSize,
+    PUNICODE_STRING DeviceName,
+    DEVICE_TYPE     DeviceType,
+    ULONG           DeviceCharacteristics,
+    BOOLEAN         Exclusive,
+    PDEVICE_OBJECT  *DeviceObject
+) 
+{
+    if (DeviceName == NULL) {
+        return IoCreateDevice(DriverObject, DeviceExtensionSize, DeviceName, DeviceType, DeviceCharacteristics, Exclusive, DeviceObject);
+    }
+
+    NTSTATUS status = IoCreateDevice(DriverObject, DeviceExtensionSize, DeviceName, DeviceType, DeviceCharacteristics, Exclusive, DeviceObject);
+    if (!NT_SUCCESS(status)) {
+        return status;
+    }
+
+    // Hook allocation and free functions.
+    DetourEnumerateIat(DriverObject->DriverStart, ImportFuncCallbackEx3);
+    return status;
+}
+
+BOOLEAN
+NTAPI
+ImportFuncCallbackEx2(
+    _In_opt_ PVOID pContext,
+    _In_     ULONG nOrdinal,
+    _In_opt_ PCSTR pszName,
+    _In_opt_ PVOID *pvFunc)
+{
+    UNREFERENCED_PARAMETER(pContext);
+    UNREFERENCED_PARAMETER(nOrdinal);
+
+    BOOLEAN result = TRUE; // Instruct Detours to continue enumeration.
+
+    if (pvFunc && pszName && ((strcmp(pszName, "IoCreateDevice") == 0)))
+    {
+        // Instruct Detours to stop enumeration.
+        result = FALSE;
+
+        ULONG_PTR hookFunc = reinterpret_cast<ULONG_PTR>(IoCreateDevice_Hook);
+
+        PMDL pImportEntryMdl = nullptr;
+        BOOLEAN LockedPages = FALSE;
+
+        __try {
+
+            //
+            // Patch the IAT entry.
+            //
+
+            pImportEntryMdl = IoAllocateMdl(pvFunc, sizeof(ULONG_PTR), FALSE, FALSE, nullptr);
+            if (!pImportEntryMdl) {
+                DbgPrint("Could not allocate an MDL for import patch, insufficient resources.");
+                __leave;
+            }
+
+            //
+            // Although the entry point is expected to be in system address space this could still throw,
+            // for example an in-page error.
+            //
+
+            __try {
+                MmProbeAndLockPages(pImportEntryMdl, KernelMode, IoWriteAccess);
+            }
+            __except (EXCEPTION_EXECUTE_HANDLER) {
+                DbgPrint("Exception while trying to probe and lock the import entry, status: 0x%08x", GetExceptionCode());
+                __leave;
+            }
+
+            LockedPages = TRUE;
+
+            PVOID pWritableImportEntry = MmGetSystemAddressForMdlSafe(pImportEntryMdl, NormalPagePriority | MdlMappingNoExecute);
+            if (!pWritableImportEntry) {
+                DbgPrint("Failed acquiring a system VA for MDL, insufficient resources\n");
+                __leave;
+            }
+
+            NTSTATUS status = MmProtectMdlSystemAddress(pImportEntryMdl, PAGE_READWRITE);
+            if (!NT_SUCCESS(status)) {
+                DbgPrint("Failed protecting the MDL system address, status: 0x%08x", status);
+                __leave;
+            }
+
+            *reinterpret_cast<ULONG_PTR *>(pWritableImportEntry) = hookFunc;
+
+        }
+        __finally {
+            if (pImportEntryMdl) {
+                if (LockedPages) {
+                    MmUnlockPages(pImportEntryMdl);
+                }
+
+                IoFreeMdl(pImportEntryMdl);
+            }
+        }
+    }
+
+    return result;
+}
+
+
 VOID
-PoolSliderLoadImageNotify(
+PoolSliderLoadImageNotifyUnsafeMitigation(
     _In_ PUNICODE_STRING FullImageName,
     _In_ HANDLE ProcessId,
     _In_ PIMAGE_INFO ImageInfo
@@ -279,8 +390,7 @@ PoolSliderLoadImageNotify(
     }
 
     //
-    // Hook ExAllocatePoolWithTag.
+    // Hook IoCreateDevice
     //
-
-    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx);
+    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx2);
 }

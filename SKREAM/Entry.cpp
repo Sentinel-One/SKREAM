@@ -1,6 +1,7 @@
 #include <ntifs.h>
 #include "TypeOverwriteMitigation.h"
 #include "PoolSliderMitigation.h"
+#include "PoolSliderMitigationSafe.h"
 
 extern "C" {
     DRIVER_INITIALIZE DriverEntry;
@@ -14,6 +15,8 @@ CreateProcessNotifyEx(
     _In_opt_  PPS_CREATE_NOTIFY_INFO pCreateInfo
 )
 {
+    PAGED_CODE();
+
 #ifdef _AMD64_
     if (pCreateInfo == nullptr) {
         // The process is being terminated.
@@ -40,7 +43,7 @@ LoadImageNotify(
     _In_ PIMAGE_INFO ImageInfo
 )
 {
-    PoolSliderLoadImageNotify(FullImageName, ProcessId, ImageInfo);
+    PoolSliderLoadImageNotifySafeMitigation(FullImageName, ProcessId, ImageInfo);
 }
 
 VOID
@@ -81,6 +84,8 @@ DriverEntry(
         DbgPrint("Failed to register load image notify routine, status = %08x\n", status);
         goto Exit;
     }
+
+    DbgPrint("Skream was successfully loaded!\n");
 
 Exit:
     if (!NT_SUCCESS(status)) {

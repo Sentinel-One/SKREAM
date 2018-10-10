@@ -134,7 +134,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
@@ -156,6 +156,7 @@
     <ClCompile Include="DetoursKernel.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="PoolSliderMitigation.cpp" />
+    <ClCompile Include="PoolSliderMitigationSafe.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="TypeOverwriteMitigation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -172,6 +173,7 @@
     <ClInclude Include="NativeStructs8.h" />
     <ClInclude Include="NativeStructs81.h" />
     <ClInclude Include="PoolSliderMitigation.h" />
+    <ClInclude Include="PoolSliderMitigationSafe.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="TypeOverwriteMitigation.h" />
     <ClInclude Include="VadUtils.h" />

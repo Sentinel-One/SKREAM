@@ -42,6 +42,9 @@
     <ClCompile Include="Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PoolSliderMitigationSafe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NativeStructs7.h">
@@ -66,6 +69,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolSliderMitigationSafe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

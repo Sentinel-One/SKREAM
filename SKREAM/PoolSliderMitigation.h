@@ -40,7 +40,7 @@ typedef struct _POOL_HEADER
 #pragma warning(default : 4201)
 
 VOID
-PoolSliderLoadImageNotify(
+PoolSliderLoadImageNotifyUnsafeMitigation(
     _In_ PUNICODE_STRING FullImageName,
     _In_ HANDLE ProcessId,
     _In_ PIMAGE_INFO ImageInfo);
