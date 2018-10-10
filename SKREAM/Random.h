@@ -10,6 +10,7 @@ public:
     ULONG rand();
     ULONG rand(_In_ ULONG max);
     ULONG rand(_In_ ULONG min, _In_ ULONG max);
+    ULONG rand2();
 
 private:
     RNG();
