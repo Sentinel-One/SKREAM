@@ -8,23 +8,23 @@ auto RNG::get() -> RNG&
 
 ULONG RNG::rand()
 {
-    return RtlRandomEx(&m_Seed);
-}
+    //
+    // We are not using RtlRandom(Ex) since these functions can only operate at IRQL <= APC_LEVEL, and we want our rand()
+    // implementation to work at DISPATCH_LEVEL as well.
+    //
 
-ULONG RNG::rand2(void) // RAND_MAX assumed to be 32767
-{
     m_Seed = m_Seed * 1103515245 + 12345;
-    return (ULONG)(m_Seed / 65536) % 32768;
+    return static_cast<ULONG>((m_Seed / 65536) % 32768);
 }
 
 ULONG RNG::rand(_In_ ULONG max)
 {
-    return rand2() % max;
+    return rand() % max;
 }
 
 ULONG RNG::rand(_In_ ULONG min, _In_ ULONG max)
 {
-    return rand2() % (max + 1 - min) + min;
+    return rand() % (max + 1 - min) + min;
 }
 
 RNG::RNG()
