@@ -148,7 +148,7 @@ VOID RtlFreeAnsiString_Hook(
 
 BOOLEAN
 NTAPI
-ImportFuncCallbackEx(
+PoolSliderImportFuncCallbackEx(
     _In_opt_ PVOID pContext,
     _In_     ULONG nOrdinal,
     _In_opt_ PCSTR pszName,
@@ -271,5 +271,5 @@ PoolSliderLoadImageNotify(
     // Hook some pool related routines.
     //
 
-    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx);
+    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, PoolSliderImportFuncCallbackEx);
 }

@@ -1,4 +1,4 @@
-#include "PoolSliderMitigationSafe.h"
+#include "PoolBloaterMitigation.h"
 #include "DetoursKernel.h"
 #include "Random.h"
 #include <ntifs.h>
@@ -52,7 +52,7 @@ ExAllocatePoolSafe_Hook(
 
 BOOLEAN
 NTAPI
-ImportFuncCallbackEx(
+PoolBloaterImportFuncCallbackEx(
     _In_opt_ PVOID pContext,
     _In_     ULONG nOrdinal,
     _In_opt_ PCSTR pszName,
@@ -144,7 +144,7 @@ Exit:
 }
 
 VOID
-PoolSliderLoadImageNotifySafeMitigation(
+PoolBloaterLoadImageNotify(
     _In_ PUNICODE_STRING FullImageName,
     _In_ HANDLE ProcessId,
     _In_ PIMAGE_INFO ImageInfo
@@ -166,5 +166,5 @@ PoolSliderLoadImageNotifySafeMitigation(
     // Hook ExAllocatePool and ExAllocatePoolWithTag
     //
 
-    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx);
+    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, PoolBloaterImportFuncCallbackEx);
 }

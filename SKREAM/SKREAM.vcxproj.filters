@@ -17,6 +17,15 @@
       <UniqueIdentifier>{8E41214B-6785-4CFE-B992-037D68949A14}</UniqueIdentifier>
       <Extensions>inf;inv;inx;mof;mc;</Extensions>
     </Filter>
+    <Filter Include="TypeOverwrite Mitigation">
+      <UniqueIdentifier>{6c89a815-0388-4927-a1c8-bccdc9e20cbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TypeOverwrite Mitigation\Source Files">
+      <UniqueIdentifier>{b0cb89aa-649e-4cf2-9132-a36bb1af8db9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TypeOverwrite Mitigation\Header Files">
+      <UniqueIdentifier>{73810331-e83c-4863-9099-64ceea8035aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="SKREAM.inf">
@@ -24,13 +33,7 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VadUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Entry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TypeOverwriteMitigation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PoolSliderMitigation.cpp">
@@ -42,26 +45,20 @@
     <ClCompile Include="Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PoolSliderMitigationSafe.cpp">
+    <ClCompile Include="Config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Config.cpp">
+    <ClCompile Include="TypeOverwriteMitigation.cpp">
+      <Filter>TypeOverwrite Mitigation\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VadUtils.cpp">
+      <Filter>TypeOverwrite Mitigation\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PoolBloaterMitigation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NativeStructs7.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NativeStructs8.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VadUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeOverwriteMitigation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PoolSliderMitigation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -74,10 +71,22 @@
     <ClInclude Include="Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PoolSliderMitigationSafe.h">
+    <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Config.h">
+    <ClInclude Include="TypeOverwriteMitigation.h">
+      <Filter>TypeOverwrite Mitigation\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VadUtils.h">
+      <Filter>TypeOverwrite Mitigation\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeStructs7.h">
+      <Filter>TypeOverwrite Mitigation\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeStructs8.h">
+      <Filter>TypeOverwrite Mitigation\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolBloaterMitigation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

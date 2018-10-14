@@ -1,7 +1,8 @@
 #include <ntifs.h>
 #include "TypeOverwriteMitigation.h"
 #include "PoolSliderMitigation.h"
-#include "PoolSliderMitigationSafe.h"
+#include "PoolBloaterMitigation.h"
+#include "Config.h"
 
 extern "C" {
     DRIVER_INITIALIZE DriverEntry;
@@ -43,7 +44,11 @@ LoadImageNotify(
     _In_ PIMAGE_INFO ImageInfo
 )
 {
-    PoolSliderLoadImageNotifySafeMitigation(FullImageName, ProcessId, ImageInfo);
+#if USE_POOL_BLOATER_MITIGATION
+    PoolBloaterLoadImageNotify(FullImageName, ProcessId, ImageInfo);
+#elif USE_POOL_SLIDER_MITIGATION
+    PoolSliderLoadImageNotify(FullImageName, ProcessId, ImageInfo);
+#endif // USE_POOL_BLOATER_MITIGATION
 }
 
 VOID
