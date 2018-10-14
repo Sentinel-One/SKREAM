@@ -1,23 +1,11 @@
 #pragma once
 
-#ifdef _AMD64_
-#define POOL_GRANULARITY    (0x10)
-#else // _X86_
-#define POOL_GRANULARITY    (0x8)
-#endif
-
 //
-// Evaluates to 0xfffffff8 on 32-bits and to 0xfffffffffffffff0 on 64-bits.
+// POOL_HEADER structure taken from ReactOS.
+// This isn't the most up-to-date definition, but for our purposes it will do.
 //
-
-#define POOL_ALIGNMENT_MASK (MAXULONG_PTR - POOL_GRANULARITY + 1)
-
-#define DEFAULT_ALLOCATION_TAG  ('enoN')
-#define DEFAULT_FREE_TAG        (0)
 
 #pragma warning(disable : 4201)
-
-// POOL_HEADER struct taken from reactOs
 typedef struct _POOL_HEADER
 {
     union
@@ -48,5 +36,25 @@ typedef struct _POOL_HEADER
         };
     };
 } POOL_HEADER, *PPOOL_HEADER;
-
 #pragma warning(default : 4201)
+
+#ifdef _AMD64_
+#define POOL_GRANULARITY    (0x10)
+#else // _X86_
+#define POOL_GRANULARITY    (0x8)
+#endif
+
+static_assert(sizeof(POOL_HEADER) == POOL_GRANULARITY, "Bad POOL_HEADER definition");
+
+//
+// Evaluates to 0xfffffff8 on 32-bits and to 0xfffffffffffffff0 on 64-bits.
+//
+
+#define POOL_ALIGNMENT_MASK (MAXULONG_PTR - POOL_GRANULARITY + 1)
+
+//
+// Default pool tags used by ExAllocatePool and ExFreePool.
+//
+
+#define DEFAULT_ALLOCATION_TAG  ('enoN')
+#define DEFAULT_FREE_TAG        (0)

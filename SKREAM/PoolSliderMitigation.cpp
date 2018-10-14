@@ -9,10 +9,8 @@ static
 ULONG
 GetPoolBlockSizeInBytes(_In_ PVOID pBlock)
 {
-    static_assert(sizeof(POOL_HEADER) == POOL_GRANULARITY, "bad pool header");
-    auto pPoolHeader = reinterpret_cast<PPOOL_HEADER>(
-        reinterpret_cast<ULONG_PTR>(pBlock) - sizeof(POOL_HEADER));
-    return pPoolHeader->BlockSize * POOL_GRANULARITY;
+    auto pBlockHeader = reinterpret_cast<PPOOL_HEADER>(reinterpret_cast<ULONG_PTR>(pBlock) - sizeof(POOL_HEADER));
+    return (pBlockHeader->BlockSize * POOL_GRANULARITY);
 }
 
 static
@@ -208,7 +206,7 @@ ImportFuncCallbackEx(
             }
 
             //
-            // Although the entry point is expected to be in system address space this could still throw,
+            // Although the import entry is expected to be in system address space this could still throw,
             // for example an in-page error.
             //
 

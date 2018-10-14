@@ -98,7 +98,7 @@ ImportFuncCallbackEx(
             }
 
             //
-            // Although the entry point is expected to be in system address space this could still throw,
+            // Although the imported entry is expected to be in system address space this could still throw,
             // for example an in-page error.
             //
 
@@ -162,7 +162,7 @@ PoolBloaterLoadImageNotify(
     }
 
     //
-    // Hook ExAllocatePool and ExAllocatePoolWithTag
+    // Hook ExAllocatePool and ExAllocatePoolWithTag.
     //
 
     DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx);
