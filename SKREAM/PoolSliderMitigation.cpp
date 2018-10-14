@@ -62,12 +62,13 @@ ExAllocatePoolWithTag_Hook(
     }
 
     if (Padding > POOL_GRANULARITY - 1) {
-        __debugbreak();
+
         //
         // This could happen when the specified pool type is CacheAligned.
         // In this case we'll only use the first 15 bytes of padding, 
         // so it'll be easier to align the address when the allocation is freed.
         //
+
         Padding = POOL_GRANULARITY - 1;
     }
 

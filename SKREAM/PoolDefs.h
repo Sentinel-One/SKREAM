@@ -10,6 +10,7 @@ typedef struct _POOL_HEADER
 {
     union
     {
+#ifdef _AMD64_
         struct
         {
             USHORT PreviousSize : 8;
@@ -17,6 +18,15 @@ typedef struct _POOL_HEADER
             USHORT BlockSize : 8;
             USHORT PoolType : 8;
         };
+#else // _X86_
+        struct
+        {
+            USHORT PreviousSize : 9;
+            USHORT PoolIndex : 7;
+            USHORT BlockSize : 9;
+            USHORT PoolType : 7;
+        };
+#endif // _AMD64_
         ULONG Ulong1;
     };
 #ifdef _M_AMD64
