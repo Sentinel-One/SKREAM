@@ -74,4 +74,4 @@ static_assert(sizeof(POOL_HEADER) == POOL_GRANULARITY, "Bad POOL_HEADER definiti
 // See https://media.blackhat.com/bh-dc-11/Mandt/BlackHat_DC_2011_Mandt_kernelpool-wp.pdf fore more details.
 //
 
-#define BIG_POOL_ALLOCATION_THRESHOLD   (0xff0)
+#define BIG_POOL_ALLOCATION_THRESHOLD   (4080)

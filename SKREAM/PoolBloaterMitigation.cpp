@@ -19,7 +19,7 @@ ExAllocatePoolWithTag_Hook(
     // Currently we don't do anything to allocations bigger than a page size.
     //
 
-    if (NumberOfBytes <= (PAGE_SIZE -   sizeof(POOL_HEADER) - (MAX_POOL_CHUNKS_TO_ADD * POOL_GRANULARITY))) {
+    if (NumberOfBytes <= (PAGE_SIZE - sizeof(POOL_HEADER) - (MAX_POOL_CHUNKS_TO_ADD * POOL_GRANULARITY))) {
 
         //
         // Add a random number of chunks to the pool allocation without changing its base address or breaking its alignment.
@@ -156,6 +156,15 @@ PoolBloaterLoadImageNotify(
 
         //
         // We only care about kernel-mode drivers.
+        //
+
+        return;
+    }
+
+    if (ImageInfo->ImageSignatureLevel > MAX_SIGNING_LEVEL_TO_HOOK) {
+
+        //
+        // We only wish to hook 3rd party products.
         //
 
         return;

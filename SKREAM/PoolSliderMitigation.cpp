@@ -4,6 +4,7 @@
 #include <ntifs.h>
 #include <fltKernel.h>
 #include "PoolDefs.h"
+#include "Config.h"
 
 static
 ULONG
@@ -265,6 +266,15 @@ PoolSliderLoadImageNotify(
 
         //
         // We only care about kernel-mode drivers.
+        //
+
+        return;
+    }
+
+    if (ImageInfo->ImageSignatureLevel > MAX_SIGNING_LEVEL_TO_HOOK) {
+
+        //
+        // We only wish to hook 3rd party products.
         //
 
         return;

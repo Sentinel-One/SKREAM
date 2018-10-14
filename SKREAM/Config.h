@@ -13,3 +13,9 @@
 
 #define MIN_POOL_CHUNKS_TO_ADD  (1)
 #define MAX_POOL_CHUNKS_TO_ADD  (5)
+
+//
+// Normally we only wish to hook drivers which are not an integral part of the OS so as not to anger PatchGuard.
+//
+
+#define MAX_SIGNING_LEVEL_TO_HOOK   (SE_SIGNING_LEVEL_MICROSOFT)
