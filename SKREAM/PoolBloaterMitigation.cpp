@@ -11,9 +11,10 @@
 #define POOL_GRANULARITY 0x8
 #endif
 
+static
 PVOID
 NTAPI
-ExAllocatePoolWithTagSafe_Hook(
+ExAllocatePoolWithTag_Hook(
     _In_ POOL_TYPE PoolType,
     _In_ SIZE_T NumberOfBytes,
     _In_ ULONG Tag
@@ -37,9 +38,10 @@ ExAllocatePoolWithTagSafe_Hook(
 
 }
 
+static
 PVOID
 NTAPI
-ExAllocatePoolSafe_Hook(
+ExAllocatePool_Hook(
     _In_ POOL_TYPE PoolType,
     _In_ SIZE_T NumberOfBytes
 )
@@ -47,12 +49,13 @@ ExAllocatePoolSafe_Hook(
     //
     // ExAllocatePool is a mere wrapper for ExAllocatePoolWithTag.
     //
-    return ExAllocatePoolWithTagSafe_Hook(PoolType, NumberOfBytes, 'enoN');
+    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 'enoN');
 }
 
+static
 BOOLEAN
 NTAPI
-PoolBloaterImportFuncCallbackEx(
+ImportFuncCallbackEx(
     _In_opt_ PVOID pContext,
     _In_     ULONG nOrdinal,
     _In_opt_ PCSTR pszName,
@@ -69,10 +72,10 @@ PoolBloaterImportFuncCallbackEx(
         ULONG_PTR hookFunc = 0;
 
         if (strcmp(pszName, "ExAllocatePoolWithTag") == 0) {
-            hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTagSafe_Hook);
+            hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePoolWithTag_Hook);
         }
         else if (strcmp(pszName, "ExAllocatePool") == 0) {
-            hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePoolSafe_Hook);
+            hookFunc = reinterpret_cast<ULONG_PTR>(ExAllocatePool_Hook);
         }
 
         if (hookFunc) {
@@ -166,5 +169,5 @@ PoolBloaterLoadImageNotify(
     // Hook ExAllocatePool and ExAllocatePoolWithTag
     //
 
-    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, PoolBloaterImportFuncCallbackEx);
+    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx);
 }

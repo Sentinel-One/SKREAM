@@ -20,6 +20,7 @@ GetPoolBlockSizeInBytes(_In_ PVOID pBlock)
     return pPoolHeader->BlockSize * POOL_GRANULARITY;
 }
 
+static
 PVOID
 NTAPI
 ExAllocatePoolWithTag_Hook(
@@ -88,7 +89,9 @@ Exit:
     return p;
 }
 
-VOID ExFreePoolWithTag_Hook(
+static
+VOID
+ExFreePoolWithTag_Hook(
     _In_ PVOID P,
     _In_ ULONG Tag
 )
@@ -101,6 +104,7 @@ VOID ExFreePoolWithTag_Hook(
     ExFreePoolWithTag(P, Tag);
 }
 
+static
 PVOID
 NTAPI
 ExAllocatePool_Hook(
@@ -115,7 +119,9 @@ ExAllocatePool_Hook(
     return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 0);
 }
 
-VOID ExFreePool_Hook(
+static
+VOID
+ExFreePool_Hook(
     _In_ PVOID P
 )
 {
@@ -126,7 +132,9 @@ VOID ExFreePool_Hook(
     ExFreePoolWithTag_Hook(P, 0);
 }
 
-VOID RtlFreeAnsiString_Hook(
+static
+VOID
+RtlFreeAnsiString_Hook(
     _In_ PANSI_STRING AnsiString
 )
 {
@@ -146,9 +154,10 @@ VOID RtlFreeAnsiString_Hook(
     RtlFreeAnsiString(AnsiString);
 }
 
+static
 BOOLEAN
 NTAPI
-PoolSliderImportFuncCallbackEx(
+ImportFuncCallbackEx(
     _In_opt_ PVOID pContext,
     _In_     ULONG nOrdinal,
     _In_opt_ PCSTR pszName,
@@ -271,5 +280,5 @@ PoolSliderLoadImageNotify(
     // Hook some pool related routines.
     //
 
-    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, PoolSliderImportFuncCallbackEx);
+    DetourEnumerateImportsEx(ImageInfo->ImageBase, FullImageName, nullptr, ImportFuncCallbackEx);
 }
