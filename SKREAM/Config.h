@@ -13,3 +13,9 @@
 
 #define MIN_POOL_CHUNKS_TO_ADD  (1)
 #define MAX_POOL_CHUNKS_TO_ADD  (5)
+
+//
+// Hooking related parameters.
+//
+
+#define MAX_SIGNING_LEVEL_TO_HOOK   (SE_SIGNING_LEVEL_MICROSOFT)
