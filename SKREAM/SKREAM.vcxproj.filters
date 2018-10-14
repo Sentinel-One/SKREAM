@@ -26,6 +26,15 @@
     <Filter Include="TypeOverwrite Mitigation\Header Files">
       <UniqueIdentifier>{73810331-e83c-4863-9099-64ceea8035aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PoolOverflow Mitigation">
+      <UniqueIdentifier>{c0f1d137-0507-40b1-bb8e-c475e96a802a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PoolOverflow Mitigation\Source Files">
+      <UniqueIdentifier>{10996397-6cfa-4f40-8054-62e93d3e036f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PoolOverflow Mitigation\Header Files">
+      <UniqueIdentifier>{7a50e05a-19f2-47b0-99fd-844b1c1bafe5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="SKREAM.inf">
@@ -34,15 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Entry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PoolSliderMitigation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DetoursKernel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
@@ -54,23 +54,20 @@
     <ClCompile Include="VadUtils.cpp">
       <Filter>TypeOverwrite Mitigation\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DetoursKernel.cpp">
+      <Filter>PoolOverflow Mitigation\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="PoolBloaterMitigation.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>PoolOverflow Mitigation\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PoolSliderMitigation.cpp">
+      <Filter>PoolOverflow Mitigation\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>PoolOverflow Mitigation\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PoolSliderMitigation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DetoursKernel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NativeStructs81.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -86,8 +83,17 @@
     <ClInclude Include="NativeStructs8.h">
       <Filter>TypeOverwrite Mitigation\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DetoursKernel.h">
+      <Filter>PoolOverflow Mitigation\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="PoolBloaterMitigation.h">
-      <Filter>Header Files</Filter>
+      <Filter>PoolOverflow Mitigation\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolSliderMitigation.h">
+      <Filter>PoolOverflow Mitigation\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>PoolOverflow Mitigation\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
