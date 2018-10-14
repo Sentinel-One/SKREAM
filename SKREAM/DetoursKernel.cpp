@@ -22,7 +22,7 @@ DetourEnumerateImportsEx(
     PIMAGE_DOS_HEADER pDosHeader = (PIMAGE_DOS_HEADER)hModule;
 
     __try {
-#pragma warning(suppress:6011) // GetModuleHandleW(NULL) never returns NULL.
+#pragma warning(suppress:6011)
         if (pDosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
             return STATUS_INVALID_IMAGE_NOT_MZ;
         }

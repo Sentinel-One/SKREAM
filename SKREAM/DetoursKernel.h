@@ -14,6 +14,10 @@ typedef BOOLEAN (NTAPI *PF_DETOUR_IMPORT_FUNC_CALLBACK_EX)(
     _In_opt_ LPCSTR pszFunc,
     _In_opt_ PVOID* ppvFunc);
 
+//
+// Borrowed from the MS Detours library (https://github.com/Microsoft/Detours) and adapted to the kernel environment.
+//
+
 NTSTATUS
 NTAPI
 DetourEnumerateImportsEx(
