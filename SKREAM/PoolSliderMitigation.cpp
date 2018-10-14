@@ -3,12 +3,7 @@
 #include "Random.h"
 #include <ntifs.h>
 #include <fltKernel.h>
-
-#ifdef _AMD64_
-#define POOL_GRANULARITY 0x10
-#else // X86
-#define POOL_GRANULARITY 0x8
-#endif
+#include "PoolDefs.h"
 
 static
 ULONG
@@ -100,7 +95,7 @@ ExFreePoolWithTag_Hook(
     // Align back to normal pool granularity.
     //
 
-    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & (0xfffffffffffffff0 | POOL_GRANULARITY));
+    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & (POOL_ALIGNMENT_MASK));
     ExFreePoolWithTag(P, Tag);
 }
 
@@ -116,7 +111,7 @@ ExAllocatePool_Hook(
     // ExAllocatePool is a mere wrapper for ExAllocatePoolWithTag.
     //
 
-    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 0);
+    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, DEFAULT_ALLOCATION_TAG);
 }
 
 static
@@ -129,7 +124,7 @@ ExFreePool_Hook(
     // ExFreePool is a mere wrapper for ExFreePoolWithTag.
     //
 
-    ExFreePoolWithTag_Hook(P, 0);
+    ExFreePoolWithTag_Hook(P, DEFAULT_FREE_TAG);
 }
 
 static
@@ -149,7 +144,7 @@ RtlFreeAnsiString_Hook(
     //
 
     auto P = reinterpret_cast<PVOID>(AnsiString->Buffer);
-    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & (0xfffffffffffffff0 | POOL_GRANULARITY));
+    P = reinterpret_cast<PVOID>(reinterpret_cast<ULONG_PTR>(P) & POOL_ALIGNMENT_MASK);
     AnsiString->Buffer = reinterpret_cast<PCHAR>(P);
     RtlFreeAnsiString(AnsiString);
 }

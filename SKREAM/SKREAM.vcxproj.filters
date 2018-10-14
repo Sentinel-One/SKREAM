@@ -95,5 +95,8 @@
     <ClInclude Include="Random.h">
       <Filter>PoolOverflow Mitigation\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PoolDefs.h">
+      <Filter>PoolOverflow Mitigation\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

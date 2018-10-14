@@ -4,12 +4,7 @@
 #include <ntifs.h>
 #include <fltKernel.h>
 #include "Config.h"
-
-#ifdef _AMD64_
-#define POOL_GRANULARITY 0x10
-#else // X86
-#define POOL_GRANULARITY 0x8
-#endif
+#include "PoolDefs.h"
 
 static
 PVOID
@@ -24,7 +19,7 @@ ExAllocatePoolWithTag_Hook(
     // Currently we don't do anything to allocations bigger than a page size.
     //
 
-    if (NumberOfBytes <= 0xf90) {
+    if (NumberOfBytes <= (PAGE_SIZE -   sizeof(POOL_HEADER) - (MAX_POOL_CHUNKS_TO_ADD * POOL_GRANULARITY))) {
 
         //
         // Add a random number of chunks to the pool allocation without changing its base address or breaking its alignment.
@@ -49,7 +44,8 @@ ExAllocatePool_Hook(
     //
     // ExAllocatePool is a mere wrapper for ExAllocatePoolWithTag.
     //
-    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, 'enoN');
+
+    return ExAllocatePoolWithTag_Hook(PoolType, NumberOfBytes, DEFAULT_ALLOCATION_TAG);
 }
 
 static

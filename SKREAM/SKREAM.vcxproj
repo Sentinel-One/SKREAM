@@ -173,6 +173,7 @@
     <ClInclude Include="DetoursKernel.h" />
     <ClInclude Include="NativeStructs7.h" />
     <ClInclude Include="NativeStructs8.h" />
+    <ClInclude Include="PoolDefs.h" />
     <ClInclude Include="PoolSliderMitigation.h" />
     <ClInclude Include="PoolBloaterMitigation.h" />
     <ClInclude Include="Random.h" />
