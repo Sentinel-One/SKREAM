@@ -58,3 +58,10 @@ static_assert(sizeof(POOL_HEADER) == POOL_GRANULARITY, "Bad POOL_HEADER definiti
 
 #define DEFAULT_ALLOCATION_TAG  ('enoN')
 #define DEFAULT_FREE_TAG        (0)
+
+//
+// Pool allocations greater than 4080 bytes (requiring a page or more) are handled by nt!ExpAllocateBigPool.
+// See https://media.blackhat.com/bh-dc-11/Mandt/BlackHat_DC_2011_Mandt_kernelpool-wp.pdf fore more details.
+//
+
+#define BIG_POOL_ALLOCATION_THRESHOLD   (0xff0)

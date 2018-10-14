@@ -37,7 +37,7 @@ ExAllocatePoolWithTag_Hook(
         goto Exit;
     }
 
-    if (NumberOfBytes > 0xff0) {
+    if (NumberOfBytes > BIG_POOL_ALLOCATION_THRESHOLD) {
 
         //
         // Allocations bigger than a page size are handled separately.

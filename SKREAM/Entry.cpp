@@ -90,12 +90,13 @@ DriverEntry(
         goto Exit;
     }
 
-    DbgPrint("Skream was successfully loaded!\n");
+    DbgPrint("SKREAM was successfully loaded!\n");
 
 Exit:
     if (!NT_SUCCESS(status)) {
         PsRemoveLoadImageNotifyRoutine(LoadImageNotify);
         PsSetCreateProcessNotifyRoutineEx(CreateProcessNotifyEx, TRUE);
     }
+
     return status;
 }
