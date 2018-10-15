@@ -59,6 +59,12 @@ ExAllocatePoolWithTag_Hook(
 
     ULONG Padding = BlockSizeInBytes - sizeof(POOL_HEADER) - static_cast<ULONG>(NumberOfBytes);
     if (Padding == 0) {
+
+        //
+        // We currently don't handle cases when the requested size is an exact multiple of the pool granularity.
+        // Refer to the accompanying blog post for some ideas about handling this class of cases.
+        //
+
         goto Exit;
     }
 
