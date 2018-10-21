@@ -18,7 +18,7 @@ CreateProcessNotifyEx(
 {
     PAGED_CODE();
 
-#ifdef _AMD64_
+#if USE_TYPE_INDEX_OVERWRITE_MITIGATION && defined(_AMD64_)
     if (pCreateInfo == nullptr) {
         // The process is being terminated.
         return;
@@ -32,7 +32,7 @@ CreateProcessNotifyEx(
     UNREFERENCED_PARAMETER(Process);
     UNREFERENCED_PARAMETER(ProcessId);
     UNREFERENCED_PARAMETER(pCreateInfo);
-#endif // _AMD64_
+#endif // USE_TYPE_INDEX_OVERWRITE_MITIGATION && defined(_AMD64_)
 
 }
 

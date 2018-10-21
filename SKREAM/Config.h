@@ -4,8 +4,9 @@
 // Params for enabling/disabling specific mitigations.
 //
 
-#define USE_POOL_BLOATER_MITIGATION    (1)
-#define USE_POOL_SLIDER_MITIGATION     (0)
+#define USE_POOL_BLOATER_MITIGATION         (0)
+#define USE_POOL_SLIDER_MITIGATION          (1)
+#define USE_TYPE_INDEX_OVERWRITE_MITIGATION (1)
 
 //
 // Params for the PoolBloater mitigation.
