@@ -11,7 +11,8 @@ This kit contains the following mitigations:
   PoolSlider uses the extra padding added to non-1-byte-aligned allocations to randomize the start address returned to the caller.
   PoolBloater adds a random number of pool blocks tp each pool allocation, to randomize the size of the received allocation.
  
-The mitigations included in SKREAM are explained in detail in these blog posts:
+The mitigations included in SKREAM are explained in detail in these blog posts: 
+
 https://www.sentinelone.com/blog/skream-kernel-mode-exploits-mitigations-rest-us/
 
 The configuration of the driver can be controlled through the config.h file, where you can enable/disable each mitigation and change default values for some of the mitigations.
