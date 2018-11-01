@@ -13,6 +13,7 @@ This kit contains the following mitigations:
  
 The mitigations included in SKREAM are explained in detail in these blog posts:  
 https://www.sentinelone.com/blog/skream-kernel-mode-exploits-mitigations-rest-us/
+https://www.sentinelone.com/blog/skream-reloaded-randomizing-kernel-pool-allocations/
 
 The configuration of the driver can be controlled through the config.h file, where you can enable/disable each mitigation and change default values for some of the mitigations.
 
